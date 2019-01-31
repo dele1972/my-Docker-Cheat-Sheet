@@ -1,0 +1,160 @@
+% If you're new to LaTeX, the wikibook is a great place to start:
+% http://en.wikibooks.org/wiki/LaTeX
+
+\documentclass[10pt,landscape]{article}
+\usepackage{multicol,multirow}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape,a4paper]{geometry}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[backend=biber,style=numeric,]{biblatex}
+\addbibresource{cites.bib}
+
+
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+    { \geometry{top=.5in,left=.5in,right=.5in,bottom=.5in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+\pagestyle{empty}
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+\usepackage{titlesec}
+\titleformat{\section}
+{\color{red}\normalfont\Large\bfseries}
+{\color{red}\thesection}{1em}{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{version}
+\title{Docker Cheat Sheet}
+\begin{document}
+
+\raggedright
+\footnotesize
+
+\begin{center}
+     \Large{\textbf{mein Docker Spickzettel}} \\
+     \Large{\normalsize Version \versionnumber} \\
+\end{center}
+
+% -----------------------------------------------------------------------
+
+\begin{multicols}{2}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+% ----------------------------------------------------------------------- Allgemein
+\section{Allgemein}\hrule\medskip
+\phantomsection
+\subsection{Docker oder Docker Toolbox?}
+Docker setzt Virtualisierung von der Hardware und dem Betriebssystem voraus. Ist dies nicht gegeben muss auf Docker Toolbox \cite{Toolbox} als Alternative zurückgegriffen werden.
+
+\medskip
+
+\subsection{Docker Toolbox}
+Grundlage der Toolbox ist MINGW64. Damit wird eine LINUX artige Shell bereit gestellt. Diese wird mit der Verknüfung 'Docker Quickstart Terminal' gestartet. Beim ersten Start wird eine VirtualBox machine erzeugt (''default'').
+
+\paragraph{Tipps:}
+Toolbox ist bei der Installation ziemlich zickig. Sofern eine VirtualBox Installation vorhanden ist, diese am besten deinstallieren und die Version der Toolbox-Installation verwenden.\\
+Wenn sich Toolbox nicht installieren/Starten lässt, dann bei der Instsallation mit der ''Install VirtualBox with NDIS5 driver [default NDIS6]'' spielen.
+
+\subsection{Erstes standalone Docker Image installieren}
+\texttt{docker run --publish 5432:5432 --name A-GOOD-NAME -e }\\
+\hspace{4mm}\texttt{POSTGRES\_PASSWORD=secret -d postgres}\\
+\medskip
+Damit wird das aktuellste postgres Image heruntergeladen, ein Container mit den entsprechenden Parametern erstellt und im Anschluss gestartet.
+
+\bigskip
+
+% ----------------------------------------------------------------------- Befehle
+\section{Befehle}\hrule\medskip
+
+\phantomsection
+\subsection{docker}
+\begin{tabular}{ll}
+\emph{Kommando} & \emph{Beschreibung} \\
+\texttt{\$ docker ps} & Listet alle aktiven Container auf\\
+\texttt{\$ docker ps -a} & ... zusätzlich werden auch \\
+ & inaktive Container gelistet\\
+\texttt{\$ docker start CONTAINER\_ID} & Startet den Container dieser ID\\
+\texttt{\$ docker stop CONTAINER\_ID} & Fährt den Container dieser ID herunter\\
+\medskip
+\texttt{\$ docker logs CONTAINER\_ID} & Zeigt die Logs des Containers an\\
+\texttt{\$ docker port} & Zeigt allgemein oder für einen spezifischen \\
+ & Container die Port-Mappings an \\
+\texttt{\$ docker info} & Gibt Informationen zum Docker System\\
+\texttt{\$ docker images} & Listet die Docker-Images des Hosts\\
+\texttt{\$ docker inspect IMAGE\_ID} & Gibt Low-Level Informationen des \\
+ & Images aus (''kurze Liste'')\\
+\texttt{\$ docker inspect CONTAINER\_ID} & Gibt Low-Level Informationen des \\
+ & Containers aus (''Lange Liste'')\\
+\medskip
+\texttt{\$ docker rm [CNT\_ID1] [...] [CNT\_IDN]} & Entfernt die Container\\
+\end{tabular}
+
+\subsection{docker-compose}
+Mittels \verb!docker-compose.yml! können mehrere Docker-Container gestartet werden. Eine Beispiel Konfiguration habe ich in GitHUb \cite{dcproj} abgelegt. Kommandos müssen in dem Verzeichnis angegeben werden, in welchem sich auch die \verb!docker-compos.yml! befindet.\\
+\medskip
+\begin{tabular}{ll}
+\emph{Kommando} & \emph{Beschreibung} \\
+\texttt{docker-compose up} & Startet die Container (im Vordergrund)\\
+\texttt{docker-compose up -d} & Startet die Container (im Hintergrund) \\
+\texttt{docker-compose down} & Beendet die im Hintergrund laufenden Container\\
+\texttt{docker-compose build --pull} & Erstellt oder Erneuert die Services\\
+\end{tabular}
+
+\subsection{docker-machine}
+Bei Verwendung der \emph{Docker Toolbox} wird beim Terminalstart die IP der Maschine angegeben.
+Mit diesen Kommandos kann man sie auch im Laufenden Betrieb anzeigen lassen:\\
+\medskip
+\begin{tabular}{ll}
+\emph{Kommando} & \emph{Beschreibung} \\
+\texttt{docker-machine ls} & Listet alle Docker Maschinen auf\\
+\texttt{docker-machine ip default} & .. zeigt die IP der Maschine mit dem Label \verb!default! an\\
+\end{tabular}
+\\\medskip
+(\emph{Hinweis}: Toolbox erstellt per Standard eine \verb!default! Virtualbox)
+
+% ----------------------------------------------------------------------- Weiteres
+\section{Weiteres}\hrule\medskip
+\paragraph{Symbollink} Bei Windows kann der Befehl \verb!mklink! \cite{mklink} verwendet werden um einen symbolischen Link zu erstellen um z. B. das \verb!document root! auf das entsprechende Projektverzeichnis zu lenken. Eine weitere Info bei Stackoverflow \cite{mklinfo}. Der Link kann per \texttt{rmdir} wieder entfernt werden.
+\begin{verbatim}
+    mklink /D /J DOCROOT-PATH PROJECT-PATH
+\end{verbatim}
+
+\paragraph{Toolbox VB löschen} Wenn man viel mit Docker Toolbox herumexperementiert, möchte man vielleicht mal wieder einen reinen Stand haben. Der einfachste und brachialste Weg: 1. Virtual Box starten; 2. \verb!default! Maschine herunterfahren; 3. \verb!default! Maschine inklusive Dateien löschen.\\
+Alternativ das \verb!default! Verzeichnis löschen.
+
+\paragraph{Info} Ein anderes \emph{Docker cheat sheet} \cite{odcs} ist unter GitHub browsable ...
+
+% ----------------------------------------------------------------------- Resources
+\printbibliography
+
+
+% ----------------------------------------------------------------------- Endnote
+
+%\bigskip\bigskip\bigskip
+\hrule\medskip
+\today ~ Dennis Lederich, \href{https://github.com/dele1972/my-Docker-Cheat-Sheet}{https://github.com/dele1972/my-Docker-Cheat-Sheet}
+\end{multicols}
+\end{document}
